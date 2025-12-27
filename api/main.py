@@ -5,14 +5,15 @@ from io import BytesIO
 from PIL import Image
 import tensorflow as tf 
 import keras
+import requests
+
 
 app = FastAPI()
 
 
+endpoint = "http://localhost:8501/v1/models/potaotes_model:predict"
 
-MODEL = keras.models.load_model(
-    "saved_models/1.keras"
-)
+
 
 CLASS_NAMES  = ['Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy']
 
@@ -33,15 +34,12 @@ async def predict(
     image = read_file_as_image(await file.read())
     img_batch = np.expand_dims(image, 0)
     
-    predictions = MODEL.predict(img_batch)
+    json_data{"instances": img_batch.tolist()}
 
-    predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
-    confidence = np.max(predictions[0])
-    return {
-        'class': predicted_class,
-        'confidence': float(confidence)
-    }
+    response = requests.post(endpoint, json = json_data)
 
+
+    pass
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port = 8000)
